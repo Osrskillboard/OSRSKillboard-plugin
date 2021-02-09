@@ -8,9 +8,6 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
 import net.runelite.api.kit.KitType;
-import net.runelite.client.account.AccountSession;
-import net.runelite.client.account.SessionManager;
-import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.PlayerLootReceived;
@@ -55,12 +52,6 @@ public class OsrsKillboardPlugin extends Plugin
 
 	@Inject
 	private SpriteManager spriteManager;
-
-	@Inject
-	private ClientThread clientThread;
-
-	@Inject
-	private SessionManager sessionManager;
 
 	private OsrsKillboardPanel panel;
 	private NavigationButton navButton;
