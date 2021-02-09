@@ -114,21 +114,6 @@ public class OsrsKillboardPlugin extends Plugin
 				.build();
 
 		clientToolbar.addNavigation(navButton);
-
-		AccountSession accountSession = sessionManager.getAccountSession();
-		if (accountSession != null) {
-			osrsKillboardClient = new OsrsKillboardClient();
-
-			clientThread.invokeLater(() ->
-			{
-				switch (client.getGameState()) {
-					case STARTING:
-					case UNKNOWN:
-						return false;
-				}
-				return true;
-			});
-		}
 	}
 
 	@Override
