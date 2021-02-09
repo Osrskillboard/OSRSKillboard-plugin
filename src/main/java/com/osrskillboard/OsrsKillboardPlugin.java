@@ -14,8 +14,6 @@ import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.PlayerLootReceived;
-import net.runelite.client.events.SessionClose;
-import net.runelite.client.events.SessionOpen;
 import net.runelite.client.game.ItemManager;
 import net.runelite.client.game.ItemStack;
 import net.runelite.client.game.SpriteManager;
@@ -98,19 +96,10 @@ public class OsrsKillboardPlugin extends Plugin
 		return list;
 	}
 
-	@Subscribe
-	public void onSessionOpen(SessionOpen sessionOpen) {
-		osrsKillboardClient = new OsrsKillboardClient();
-	}
-
-	@Subscribe
-	public void onSessionClose(SessionClose sessionClose) {
-		osrsKillboardClient = null;
-	}
-
 	@Override
-	protected void startUp() throws Exception {
+	protected void startUp() {
 		log.info("OsrsKillboard started!");
+		osrsKillboardClient = new OsrsKillboardClient();
 
 		panel = new OsrsKillboardPanel(this, itemManager, config);
 		spriteManager.getSpriteAsync(SpriteID.PLAYER_KILLER_SKULL, 0, panel::loadHeaderIcon);
