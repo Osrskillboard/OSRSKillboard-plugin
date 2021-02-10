@@ -1,5 +1,6 @@
 package com.osrskillboard;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.inject.Provides;
@@ -28,6 +29,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @PluginDescriptor(
@@ -117,6 +119,11 @@ public class OsrsKillboardPlugin extends Plugin
 
 	@Subscribe
 	public void onPlayerLootReceived(final PlayerLootReceived playerLootReceived) throws IOException {
+		if (isPlayerInSafeMinigame())
+		{
+			return;
+		}
+
 		final Player victim = playerLootReceived.getPlayer();
 		final Collection<ItemStack> items = playerLootReceived.getItems();
 		final String name = victim.getName();
@@ -267,5 +274,33 @@ public class OsrsKillboardPlugin extends Plugin
 		return itemStacks.stream()
 				.map(itemStack -> buildOsrsKillboardItem(itemStack.getId(), itemStack.getQuantity()))
 				.toArray(OsrsKillboardItem[]::new);
+	}
+
+	private boolean isPlayerInSafeMinigame()
+	{
+		Set<Integer> SOUL_WARS_REGIONS = ImmutableSet.of(8493, 8749, 9005);
+		Set<Integer> LAST_MAN_STANDING_REGIONS = ImmutableSet.of(13658, 13659, 13914, 13915, 13916);
+
+		boolean playerInSafeMinigame = true;
+		if (isPlayerWithinMapRegion(LAST_MAN_STANDING_REGIONS) || isPlayerWithinMapRegion(SOUL_WARS_REGIONS)){
+			playerInSafeMinigame = false;
+		}
+
+		return playerInSafeMinigame;
+	}
+
+	private boolean isPlayerWithinMapRegion(Set<Integer> definedMapRegions)
+	{
+		final int[] mapRegions = client.getMapRegions();
+
+		for (int region : mapRegions)
+		{
+			if (definedMapRegions.contains(region))
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 }
