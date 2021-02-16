@@ -1,7 +1,6 @@
 package com.osrskillboard;
 
 import net.runelite.client.game.ItemManager;
-import net.runelite.client.plugins.grandexchange.GrandExchangePlugin;
 import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.FontManager;
 import net.runelite.client.ui.PluginPanel;
@@ -12,8 +11,6 @@ import net.runelite.client.util.QuantityFormatter;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -234,17 +231,6 @@ class OsrsKillboardPanel extends PluginPanel
         });
 
         popupMenu.add(reset);
-
-        // Create details menu
-        final JMenuItem details = new JMenuItem("View details");
-        details.addActionListener(e ->
-        {
-            currentView = record.getTitle();
-            detailsTitle.setText(currentView);
-            rebuild();
-        });
-
-        popupMenu.add(details);
 
         if(record.getOsrsKillboardKillId() != ""){
             final JMenuItem openOsrsKillboardLink = new JMenuItem("Open on OSRSKillboard.com");
