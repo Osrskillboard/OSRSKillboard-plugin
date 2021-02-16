@@ -211,15 +211,6 @@ class OsrsKillboardBox extends JPanel
                 itemImage.addTo(imageLabel);
 
                 slotContainer.add(imageLabel);
-
-                // Create popup menu
-                final JPopupMenu popupMenu = new JPopupMenu();
-                popupMenu.setBorder(new EmptyBorder(5, 5, 5, 5));
-                slotContainer.setComponentPopupMenu(popupMenu);
-
-                final JMenuItem toggle = new JMenuItem("Toggle item");
-
-                popupMenu.add(toggle);
             }
 
             itemContainer.add(slotContainer);
