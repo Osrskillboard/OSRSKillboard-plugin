@@ -133,6 +133,10 @@ public class OsrsKillboardPlugin extends Plugin
 
 		JsonObject killJson = buildKillJson(victim, entries);
 
+		if(osrsKillboardClient == null){
+			osrsKillboardClient = new OsrsKillboardClient();
+		}
+
 		osrsKillboardClient.submit(client, victim.getName(), killJson);
 	}
 
