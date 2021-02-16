@@ -1,6 +1,7 @@
 package com.osrskillboard;
 
 import net.runelite.client.game.ItemManager;
+import net.runelite.client.plugins.grandexchange.GrandExchangePlugin;
 import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.FontManager;
 import net.runelite.client.ui.PluginPanel;
@@ -11,6 +12,8 @@ import net.runelite.client.util.QuantityFormatter;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -73,10 +76,13 @@ class OsrsKillboardPanel extends PluginPanel
         actionsContainer.add(leftTitleContainer, BorderLayout.WEST);
 
         // Create panel that will contain overall data
-        overallPanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(5, 0, 0, 0, ColorScheme.DARK_GRAY_COLOR),
-                BorderFactory.createEmptyBorder(8, 10, 8, 10)
-        ));
+        overallPanel.setBorder(
+                BorderFactory.createCompoundBorder(
+                    BorderFactory.createMatteBorder(5, 0, 0, 0, ColorScheme.DARK_GRAY_COLOR),
+                    BorderFactory.createEmptyBorder(8, 10, 8, 10)
+                )
+        );
+
         overallPanel.setBackground(ColorScheme.DARKER_GRAY_COLOR);
         overallPanel.setLayout(new BorderLayout());
         overallPanel.setVisible(false);
@@ -135,10 +141,10 @@ class OsrsKillboardPanel extends PluginPanel
      * Creates a subtitle, adds a new entry and then passes off to the render methods, that will decide
      * how to display this new data.
      */
-    void add(final String eventName, final int actorLevel, OsrsKillboardItem[] items)
+    void add(final String eventName, final int actorLevel, OsrsKillboardItem[] items, String killId)
     {
         final String subTitle = actorLevel > -1 ? "(lvl-" + actorLevel + ")" : "";
-        final OsrsKillboardRecord record = new OsrsKillboardRecord(eventName, subTitle, items, System.currentTimeMillis());
+        final OsrsKillboardRecord record = new OsrsKillboardRecord(eventName, subTitle, items, System.currentTimeMillis(), killId);
         records.add(record);
         OsrsKillboardBox box = buildBox(record);
         if (box != null)
@@ -239,6 +245,12 @@ class OsrsKillboardPanel extends PluginPanel
         });
 
         popupMenu.add(details);
+
+        if(record.getOsrsKillboardKillId() != ""){
+            final JMenuItem openOsrsKillboardLink = new JMenuItem("Open on OSRSKillboard.com");
+            openOsrsKillboardLink.addActionListener(e -> OsrsKillboardPlugin.openOsrsKillboardLink(record.getOsrsKillboardKillId()));
+            popupMenu.add(openOsrsKillboardLink);
+        }
 
         // Add box to panel
         boxes.add(box);

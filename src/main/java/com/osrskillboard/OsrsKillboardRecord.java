@@ -9,6 +9,7 @@ class OsrsKillboardRecord
     private final String subTitle;
     private final OsrsKillboardItem[] items;
     private final long timestamp;
+    private final String OsrsKillboardKillId;
 
     /**
      * Checks if this record matches specified id

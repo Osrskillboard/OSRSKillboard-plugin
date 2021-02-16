@@ -20,6 +20,7 @@ import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.ClientToolbar;
 import net.runelite.client.ui.NavigationButton;
 import net.runelite.client.util.ImageUtil;
+import net.runelite.client.util.LinkBrowser;
 
 import javax.inject.Inject;
 import javax.swing.*;
@@ -126,18 +127,17 @@ public class OsrsKillboardPlugin extends Plugin
 
 		final Player victim = playerLootReceived.getPlayer();
 		final Collection<ItemStack> items = playerLootReceived.getItems();
-		final String name = victim.getName();
-		final int combat = victim.getCombatLevel();
-		final OsrsKillboardItem[] entries = buildEntries(stack(items));
-		SwingUtilities.invokeLater(() -> panel.add(name, combat, entries));
+		final String victimName = victim.getName();
+		final int victimCombat = victim.getCombatLevel();
+		final OsrsKillboardItem[] victimLoot = buildEntries(stack(items));
 
-		JsonObject killJson = buildKillJson(victim, entries);
+		JsonObject killJson = buildKillJson(victim, victimLoot);
 
 		if(osrsKillboardClient == null){
 			osrsKillboardClient = new OsrsKillboardClient();
 		}
 
-		osrsKillboardClient.submit(client, victim.getName(), killJson);
+		osrsKillboardClient.submit(client, killJson, panel, victimName, victimCombat, victimLoot);
 	}
 
 	private JsonObject buildKillJson(Player victim, OsrsKillboardItem[] lootItems) {
@@ -305,5 +305,11 @@ public class OsrsKillboardPlugin extends Plugin
 		}
 
 		return false;
+	}
+
+	static void openOsrsKillboardLink(String killId)
+	{
+		final String url = "https://osrskillboard.com/pks/" + killId;
+		LinkBrowser.browse(url);
 	}
 }
