@@ -131,7 +131,6 @@ public class OsrsKillboardPlugin extends Plugin
 		final OsrsKillboardItem[] entries = buildEntries(stack(items));
 		SwingUtilities.invokeLater(() -> panel.add(name, combat, entries));
 
-		osrsKillboardClient = new OsrsKillboardClient();
 		JsonObject killJson = buildKillJson(victim, entries);
 
 		osrsKillboardClient.submit(client, victim.getName(), killJson);
