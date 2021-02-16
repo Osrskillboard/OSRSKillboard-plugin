@@ -46,7 +46,6 @@ class OsrsKillboardPanel extends PluginPanel
     private final OsrsKillboardPlugin plugin;
     private final OsrsKillboardConfig config;
 
-    private boolean groupLoot;
     private String currentView;
 
     OsrsKillboardPanel(final OsrsKillboardPlugin plugin, final ItemManager itemManager, final OsrsKillboardConfig config)
@@ -166,7 +165,7 @@ class OsrsKillboardPanel extends PluginPanel
         logsContainer.removeAll();
         boxes.clear();
         int start = 0;
-        if (!groupLoot && records.size() > MAX_LOOT_BOXES)
+        if (records.size() > MAX_LOOT_BOXES)
         {
             start = records.size() - MAX_LOOT_BOXES;
         }
@@ -194,15 +193,12 @@ class OsrsKillboardPanel extends PluginPanel
         }
 
         // Group all similar loot together
-        if (groupLoot)
+        for (OsrsKillboardBox box : boxes)
         {
-            for (OsrsKillboardBox box : boxes)
+            if (box.matches(record))
             {
-                if (box.matches(record))
-                {
-                    box.combine(record);
-                    return box;
-                }
+                box.combine(record);
+                return box;
             }
         }
 
@@ -248,7 +244,7 @@ class OsrsKillboardPanel extends PluginPanel
         boxes.add(box);
         logsContainer.add(box, 0);
 
-        if (!groupLoot && boxes.size() > MAX_LOOT_BOXES)
+        if (boxes.size() > MAX_LOOT_BOXES)
         {
             logsContainer.remove(boxes.remove(0));
         }
