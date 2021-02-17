@@ -282,7 +282,7 @@ public class OsrsKillboardPlugin extends Plugin
 	private boolean isPlayerInSafeMinigame()
 	{
 		Set<Integer> SOUL_WARS_REGIONS = ImmutableSet.of(8493, 8749, 9005);
-		Set<Integer> LAST_MAN_STANDING_REGIONS = ImmutableSet.of(13658, 13659, 13914, 13915, 13916);
+		Set<Integer> LAST_MAN_STANDING_REGIONS = ImmutableSet.of(13658, 13659, 13660, 13914, 13915, 13916, 13918, 13919, 13920, 14174, 14175, 14176, 14430, 14431, 14432);
 
 		boolean playerInSafeMinigame = false;
 		if (isPlayerWithinMapRegion(LAST_MAN_STANDING_REGIONS) || isPlayerWithinMapRegion(SOUL_WARS_REGIONS)){
