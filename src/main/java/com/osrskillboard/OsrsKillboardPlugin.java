@@ -21,9 +21,9 @@ import net.runelite.client.ui.ClientToolbar;
 import net.runelite.client.ui.NavigationButton;
 import net.runelite.client.util.ImageUtil;
 import net.runelite.client.util.LinkBrowser;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.inject.Inject;
-import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.time.Instant;
@@ -309,7 +309,11 @@ public class OsrsKillboardPlugin extends Plugin
 
 	static void openOsrsKillboardLink(String killId)
 	{
-		final String url = "https://osrskillboard.com/pks/" + killId;
+		String url = "https://osrskillboard.com";
+		if(!StringUtils.isEmpty(killId)){
+			url = "https://osrskillboard.com/pks/" + killId;
+		}
+
 		LinkBrowser.browse(url);
 	}
 }
