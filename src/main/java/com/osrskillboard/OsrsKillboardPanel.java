@@ -7,10 +7,12 @@ import net.runelite.client.ui.PluginPanel;
 import net.runelite.client.ui.components.PluginErrorPanel;
 import net.runelite.client.util.ColorUtil;
 import net.runelite.client.util.QuantityFormatter;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.datatransfer.StringSelection;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -232,10 +234,19 @@ class OsrsKillboardPanel extends PluginPanel
 
         popupMenu.add(reset);
 
-        if(record.getOsrsKillboardKillId() != ""){
+        if(!record.getOsrsKillboardKillId().equals("")){
             final JMenuItem openOsrsKillboardLink = new JMenuItem("Open on OSRSKillboard.com");
             openOsrsKillboardLink.addActionListener(e -> OsrsKillboardPlugin.openOsrsKillboardLink(record.getOsrsKillboardKillId()));
             popupMenu.add(openOsrsKillboardLink);
+        }
+
+        if(!record.getOsrsKillboardKillId().equals("")){
+            final JMenuItem copyOsrsKillboardLink = new JMenuItem("Copy kill link");
+            String killUrl = OsrsKillboardPlugin.GetKillUrl(record.getOsrsKillboardKillId());
+            final StringSelection osrsKillboardLink = new StringSelection(killUrl);
+            copyOsrsKillboardLink.addActionListener(e -> Toolkit.getDefaultToolkit().getSystemClipboard().setContents(osrsKillboardLink, null));
+
+            popupMenu.add(copyOsrsKillboardLink);
         }
 
         // Add box to panel

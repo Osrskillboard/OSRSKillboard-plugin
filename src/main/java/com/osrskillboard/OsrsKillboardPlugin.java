@@ -309,11 +309,15 @@ public class OsrsKillboardPlugin extends Plugin
 
 	static void openOsrsKillboardLink(String killId)
 	{
+		LinkBrowser.browse(GetKillUrl(killId));
+	}
+
+	static String GetKillUrl(String killId){
 		String url = "https://osrskillboard.com";
-		if(!StringUtils.isEmpty(killId)){
+		if(StringUtils.isNotEmpty(killId)){
 			url = "https://osrskillboard.com/pks/" + killId;
 		}
 
-		LinkBrowser.browse(url);
+		return url;
 	}
 }
