@@ -26,11 +26,11 @@ import org.apache.commons.lang3.StringUtils;
 import javax.inject.Inject;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.time.Clock;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.*;
 
 @Slf4j
 @PluginDescriptor(
@@ -146,7 +146,8 @@ public class OsrsKillboardPlugin extends Plugin
 		Player pker = client.getLocalPlayer();
 
 		// Kill Info
-		killJson.addProperty("time", Instant.now().toString());
+		OffsetDateTime utc = OffsetDateTime.now(ZoneOffset.UTC);
+		killJson.addProperty("time", Instant.now(Clock.systemUTC()).toString());
 		killJson.addProperty("world", client.getWorld());
 		killJson.addProperty("worldType", client.getWorldType().toString());
 		killJson.addProperty("localLocation", pker.getLocalLocation().toString());
