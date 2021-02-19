@@ -26,11 +26,14 @@ import org.apache.commons.lang3.StringUtils;
 import javax.inject.Inject;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.time.Clock;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.*;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @PluginDescriptor(
@@ -147,7 +150,7 @@ public class OsrsKillboardPlugin extends Plugin
 
 		// Kill Info
 		OffsetDateTime utc = OffsetDateTime.now(ZoneOffset.UTC);
-		killJson.addProperty("time", Instant.now(Clock.systemUTC()).toString());
+		killJson.addProperty("time", DateTimeFormatter.ISO_INSTANT.format(Instant.now()));
 		killJson.addProperty("world", client.getWorld());
 		killJson.addProperty("worldType", client.getWorldType().toString());
 		killJson.addProperty("localLocation", pker.getLocalLocation().toString());
