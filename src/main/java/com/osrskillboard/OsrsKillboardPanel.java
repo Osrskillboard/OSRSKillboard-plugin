@@ -7,7 +7,6 @@ import net.runelite.client.ui.PluginPanel;
 import net.runelite.client.ui.components.PluginErrorPanel;
 import net.runelite.client.util.ColorUtil;
 import net.runelite.client.util.QuantityFormatter;
-import org.apache.commons.lang3.StringUtils;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -195,16 +194,6 @@ class OsrsKillboardPanel extends PluginPanel
         if (!record.matches(currentView))
         {
             return null;
-        }
-
-        // Group all similar loot together
-        for (OsrsKillboardBox box : boxes)
-        {
-            if (box.matches(record))
-            {
-                box.combine(record);
-                return box;
-            }
         }
 
         // Show main view
