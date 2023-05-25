@@ -69,6 +69,7 @@ public class OsrsKillboardPlugin extends Plugin
 	}
 
 	@Getter(AccessLevel.PACKAGE)
+	@Inject
 	private OsrsKillboardClient osrsKillboardClient;
 
 	private static Collection<ItemStack> stack(Collection<ItemStack> items) {
@@ -96,12 +97,11 @@ public class OsrsKillboardPlugin extends Plugin
 	@Override
 	protected void startUp() {
 		log.info("OsrsKillboard started!");
-		osrsKillboardClient = new OsrsKillboardClient();
 
 		panel = new OsrsKillboardPanel(this, itemManager, config);
-		spriteManager.getSpriteAsync(SpriteID.PLAYER_KILLER_SKULL, 0, panel::loadHeaderIcon);
+		spriteManager.getSpriteAsync(SpriteID.PLAYER_KILLER_SKULL, 0, panel ::loadHeaderIcon);
 
-		final BufferedImage icon = ImageUtil.getResourceStreamFromClass(getClass(), "panel_icon.png");
+		final BufferedImage icon = ImageUtil.loadImageResource(getClass(), "panel_icon.png");
 
 		navButton = NavigationButton.builder()
 				.tooltip("OsrsKillboard")
@@ -135,10 +135,6 @@ public class OsrsKillboardPlugin extends Plugin
 		final OsrsKillboardItem[] victimLoot = buildEntries(stack(items));
 
 		JsonObject killJson = buildKillJson(victim, victimLoot);
-
-		if(osrsKillboardClient == null){
-			osrsKillboardClient = new OsrsKillboardClient();
-		}
 
 		osrsKillboardClient.submit(client, killJson, panel, victimName, victimCombat, victimLoot);
 	}
