@@ -8,7 +8,10 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
+import net.runelite.api.events.GameStateChanged;
+import net.runelite.api.events.WidgetLoaded;
 import net.runelite.api.kit.KitType;
+import net.runelite.api.widgets.WidgetID;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.PlayerLootReceived;
@@ -30,10 +33,8 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @PluginDescriptor(
@@ -61,6 +62,7 @@ public class OsrsKillboardPlugin extends Plugin
 
 	private OsrsKillboardPanel panel;
 	private NavigationButton navButton;
+	private boolean chestLooted;
 
 	@Provides
 	OsrsKillboardConfig provideConfig(ConfigManager configManager)
@@ -118,7 +120,7 @@ public class OsrsKillboardPlugin extends Plugin
 		log.info("OsrsKillboard stopped!");
 
 		clientToolbar.removeNavigation(navButton);
-		osrsKillboardClient = null;
+		chestLooted = false;
 	}
 
 	@Subscribe
@@ -136,7 +138,61 @@ public class OsrsKillboardPlugin extends Plugin
 
 		JsonObject killJson = buildKillJson(victim, victimLoot);
 
-		osrsKillboardClient.submit(client, killJson, panel, victimName, victimCombat, victimLoot);
+		osrsKillboardClient.submitPk(killJson, panel, victimName, victimCombat, victimLoot);
+	}
+
+	@Subscribe
+	public void onGameStateChanged(final GameStateChanged event)
+	{
+		if (event.getGameState() == GameState.LOADING && !client.isInInstancedRegion())
+		{
+			chestLooted = false;
+		}
+	}
+
+	@Subscribe
+	public void onWidgetLoaded(WidgetLoaded widgetLoaded)
+	{
+		String event;
+		Object metadata = null;
+		final ItemContainer container;
+
+		switch (widgetLoaded.getGroupId())
+		{
+			case WidgetID.WILDERNESS_LOOT_CHEST:
+				if (chestLooted)
+				{
+					return;
+				}
+				event = "Loot Chest";
+				container = client.getItemContainer(InventoryID.WILDERNESS_LOOT_CHEST);
+				chestLooted = true;
+				break;
+			default:
+				return;
+		}
+
+		if (container == null)
+		{
+			return;
+		}
+
+		// Convert container items to array of ItemStack
+		final Collection<ItemStack> items = Arrays.stream(container.getItems())
+				.filter(item -> item.getId() > 0)
+				.map(item -> new ItemStack(item.getId(), item.getQuantity(), client.getLocalPlayer().getLocalLocation()))
+				.collect(Collectors.toList());
+
+		final OsrsKillboardItem[] chestLoot = buildEntries(stack(items));
+
+		if (items.isEmpty())
+		{
+			log.debug("No items to find for Event: {} | Container: {}", event, container);
+			return;
+		}
+
+		JsonObject keyJson = buildKeyJson(chestLoot);
+		osrsKillboardClient.submitKeyLoot(keyJson, panel, chestLoot);
 	}
 
 	private JsonObject buildKillJson(Player victim, OsrsKillboardItem[] lootItems) {
@@ -173,6 +229,30 @@ public class OsrsKillboardPlugin extends Plugin
 		killJson.addProperty("victimIsClanMember", victim.isFriendsChatMember());
 
 		return killJson;
+	}
+
+	private JsonObject buildKeyJson(OsrsKillboardItem[] lootItems) {
+		JsonObject keyJson = new JsonObject();
+
+		Player pker = client.getLocalPlayer();
+
+		// Kill Info
+		OffsetDateTime utc = OffsetDateTime.now(ZoneOffset.UTC);
+		keyJson.addProperty("time", DateTimeFormatter.ISO_INSTANT.format(Instant.now()));
+		keyJson.addProperty("world", client.getWorld());
+		keyJson.addProperty("worldType", client.getWorldType().toString());
+		keyJson.addProperty("localLocation", pker.getLocalLocation().toString());
+		keyJson.addProperty("worldLocation", pker.getWorldLocation().toString());
+
+		// Pker Info
+		keyJson.addProperty("pkerName", pker.getName());
+		keyJson.addProperty("pkerAccountType", client.getAccountType().toString());
+
+		// Misc
+		keyJson.add("loot", getLootAsJson(lootItems));
+		keyJson.addProperty("lootValue", getLootValue(lootItems));
+
+		return keyJson;
 	}
 
 	private boolean isPlayerSkulled(Player player) {

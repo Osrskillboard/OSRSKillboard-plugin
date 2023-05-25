@@ -29,8 +29,7 @@ public class OsrsKillboardClient
         this.httpClient = client;
     }
 
-
-    public CompletableFuture<Void> submit(Client client, JsonObject killRecord, OsrsKillboardPanel panel, String victimName, int victimCombat, OsrsKillboardItem[] victimLoot)
+    public CompletableFuture<Void> submitPk(JsonObject killRecord, OsrsKillboardPanel panel, String victimName, int victimCombat, OsrsKillboardItem[] victimLoot)
     {
         CompletableFuture<Void> future = new CompletableFuture<>();
 
@@ -73,6 +72,57 @@ public class OsrsKillboardClient
                 String finalKillIdentifier = killIdentifier;
                 SwingUtilities.invokeLater(() -> {
                     panel.add(victimName, victimCombat, victimLoot, finalKillIdentifier);
+                    future.complete(null);
+                });
+            }
+        });
+
+        return future;
+    }
+
+    public CompletableFuture<Void> submitKeyLoot(JsonObject keyJson, OsrsKillboardPanel panel, OsrsKillboardItem[] keyLoot)
+    {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+
+        HttpUrl url = apiBase.newBuilder()
+                .addPathSegment("LootKeys")
+                .build();
+
+        MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+
+        Request requestBuilder = new Request.Builder()
+                .post(RequestBody.create(JSON, keyJson.toString()))
+                .url(url)
+                .build();
+
+        httpClient.newCall(requestBuilder).enqueue(new Callback()
+        {
+            @Override
+            public void onFailure(Call call, IOException e)
+            {
+                chatMessageManager.queue(QueuedMessage.builder().type(ChatMessageType.GAMEMESSAGE).value("OSRSKillboard.com - PvP Loot Chest opening failed to log.").build());
+                SwingUtilities.invokeLater(() -> panel.add("PvP Loot Chest", -2, keyLoot, ""));
+                log.warn("unable to submit loot chest", e);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) {
+
+                String killIdentifier = null;
+                try {
+                    assert response.body() != null;
+                    killIdentifier = response.body().string();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                } finally {
+                    response.close();
+                }
+
+                chatMessageManager.queue(QueuedMessage.builder().type(ChatMessageType.GAMEMESSAGE).value("OSRSKillboard.com - PvP Loot Chest opening logged.").build());
+
+                String serverKeyId = killIdentifier;
+                SwingUtilities.invokeLater(() -> {
+                    panel.add("PvP Loot Chest", -2, keyLoot, serverKeyId);
                     future.complete(null);
                 });
             }

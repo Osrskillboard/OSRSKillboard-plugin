@@ -223,13 +223,13 @@ class OsrsKillboardPanel extends PluginPanel
 
         popupMenu.add(reset);
 
-        if(!record.getOsrsKillboardKillId().equals("")){
+        if(!record.getOsrsKillboardKillId().equals("") || record.getTitle() != "PvP Loot Chest"){
             final JMenuItem openOsrsKillboardLink = new JMenuItem("Open on OSRSKillboard.com");
             openOsrsKillboardLink.addActionListener(e -> OsrsKillboardPlugin.openOsrsKillboardLink(record.getOsrsKillboardKillId()));
             popupMenu.add(openOsrsKillboardLink);
         }
 
-        if(!record.getOsrsKillboardKillId().equals("")){
+        if(!record.getOsrsKillboardKillId().equals("") || record.getTitle() != "PvP Loot Chest"){
             final JMenuItem copyOsrsKillboardLink = new JMenuItem("Copy kill link");
             String killUrl = OsrsKillboardPlugin.GetKillUrl(record.getOsrsKillboardKillId());
             final StringSelection osrsKillboardLink = new StringSelection(killUrl);
