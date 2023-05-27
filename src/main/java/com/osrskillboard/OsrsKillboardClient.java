@@ -85,7 +85,7 @@ public class OsrsKillboardClient
         CompletableFuture<Void> future = new CompletableFuture<>();
 
         HttpUrl url = apiBase.newBuilder()
-                .addPathSegment("LootKeys")
+                .addPathSegment("lootkeys")
                 .build();
 
         MediaType JSON = MediaType.parse("application/json; charset=utf-8");
@@ -102,7 +102,7 @@ public class OsrsKillboardClient
             {
                 chatMessageManager.queue(QueuedMessage.builder().type(ChatMessageType.GAMEMESSAGE).value("OSRSKillboard.com - PvP Loot Chest opening failed to log.").build());
                 SwingUtilities.invokeLater(() -> panel.add("PvP Loot Chest", -2, keyLoot, ""));
-                log.warn("unable to submit loot chest", e);
+                log.warn("unable to submit PVP Loot Chest", e);
             }
 
             @Override

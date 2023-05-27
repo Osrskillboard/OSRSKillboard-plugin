@@ -16,6 +16,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 class OsrsKillboardPanel extends PluginPanel
 {
@@ -224,20 +225,18 @@ class OsrsKillboardPanel extends PluginPanel
         popupMenu.add(reset);
 
         if(!record.getOsrsKillboardKillId().equals("") || record.getTitle() != "PvP Loot Chest"){
+            // Add right click open on OSRSKillboard.com
             final JMenuItem openOsrsKillboardLink = new JMenuItem("Open on OSRSKillboard.com");
             openOsrsKillboardLink.addActionListener(e -> OsrsKillboardPlugin.openOsrsKillboardLink(record.getOsrsKillboardKillId()));
             popupMenu.add(openOsrsKillboardLink);
-        }
 
-        if(!record.getOsrsKillboardKillId().equals("") || record.getTitle() != "PvP Loot Chest"){
+            // Add right click copy OSRSKillboard.com link
             final JMenuItem copyOsrsKillboardLink = new JMenuItem("Copy kill link");
             String killUrl = OsrsKillboardPlugin.GetKillUrl(record.getOsrsKillboardKillId());
             final StringSelection osrsKillboardLink = new StringSelection(killUrl);
             copyOsrsKillboardLink.addActionListener(e -> Toolkit.getDefaultToolkit().getSystemClipboard().setContents(osrsKillboardLink, null));
-
             popupMenu.add(copyOsrsKillboardLink);
         }
-
         // Add box to panel
         boxes.add(box);
         logsContainer.add(box, 0);
