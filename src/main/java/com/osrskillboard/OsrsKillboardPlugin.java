@@ -11,7 +11,7 @@ import net.runelite.api.*;
 import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.WidgetLoaded;
 import net.runelite.api.kit.KitType;
-import net.runelite.api.widgets.WidgetID;
+import net.runelite.api.widgets.InterfaceID;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.PlayerLootReceived;
@@ -159,7 +159,7 @@ public class OsrsKillboardPlugin extends Plugin
 
 		switch (widgetLoaded.getGroupId())
 		{
-			case WidgetID.WILDERNESS_LOOT_CHEST:
+			case InterfaceID.WILDERNESS_LOOT_CHEST:
 				if (chestLooted)
 				{
 					return;
