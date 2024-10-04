@@ -257,7 +257,7 @@ public class OsrsKillboardPlugin extends Plugin
 
 	private boolean isPlayerSkulled(Player player) {
 		boolean isSkulled = false;
-		if (player.getSkullIcon() != null) {
+		if (player.getSkullIcon() > -1) {
 			isSkulled = true;
 		}
 
