@@ -101,7 +101,7 @@ public class OsrsKillboardPlugin extends Plugin
 		log.info("OsrsKillboard started!");
 
 		panel = new OsrsKillboardPanel(this, itemManager, config);
-		spriteManager.getSpriteAsync(SpriteID.PLAYER_KILLER_SKULL, 0, panel ::loadHeaderIcon);
+		spriteManager.getSpriteAsync(net.runelite.api.gameval.SpriteID.HeadiconsPkInterface.PLAYER_KILLER_SKULL, 0, panel ::loadHeaderIcon);
 
 		final BufferedImage icon = ImageUtil.loadImageResource(getClass(), "panel_icon.png");
 
