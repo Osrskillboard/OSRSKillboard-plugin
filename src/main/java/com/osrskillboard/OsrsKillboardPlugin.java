@@ -210,7 +210,7 @@ public class OsrsKillboardPlugin extends Plugin
 
 		// Pker Info
 		killJson.addProperty("pkerName", pker.getName());
-		killJson.addProperty("pkerAccountType", client.getAccountType().toString());
+		killJson.addProperty("pkerAccountType", Varbits.ACCOUNT_TYPE);
 		killJson.addProperty("pkerCombatLevel", pker.getCombatLevel());
 		killJson.add("pkerItemsEquipped", getEquippedGearForPlayer(pker));
 		killJson.addProperty("pkerIsSkulled", isPlayerSkulled(pker));
@@ -246,7 +246,7 @@ public class OsrsKillboardPlugin extends Plugin
 
 		// Pker Info
 		keyJson.addProperty("pkerName", pker.getName());
-		keyJson.addProperty("pkerAccountType", client.getAccountType().toString());
+		keyJson.addProperty("pkerAccountType", Varbits.ACCOUNT_TYPE);
 
 		// Misc
 		keyJson.add("loot", getLootAsJson(lootItems));
