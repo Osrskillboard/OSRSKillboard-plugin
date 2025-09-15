@@ -299,8 +299,8 @@ public class OsrsKillboardPlugin extends Plugin
 		return itemJson;
 	}
 
-	private int getLootValue(OsrsKillboardItem[] lootItems) {
-		int lootValue = 0;
+	private long getLootValue(OsrsKillboardItem[] lootItems) {
+		long lootValue = 0;
 
 		for (OsrsKillboardItem item : lootItems) {
 			lootValue += item.getGePrice();
