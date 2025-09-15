@@ -144,7 +144,7 @@ public class OsrsKillboardPlugin extends Plugin
 	@Subscribe
 	public void onGameStateChanged(final GameStateChanged event)
 	{
-		if (event.getGameState() == GameState.LOADING && !client.isInInstancedRegion())
+		if (event.getGameState() == GameState.LOADING && !client.getTopLevelWorldView().isInstance())
 		{
 			chestLooted = false;
 		}
