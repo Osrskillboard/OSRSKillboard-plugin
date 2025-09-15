@@ -374,7 +374,8 @@ public class OsrsKillboardPlugin extends Plugin
 
 	private boolean isPlayerWithinMapRegion(Set<Integer> definedMapRegions)
 	{
-		final int[] mapRegions = client.getMapRegions();
+        WorldView worldView = client.getTopLevelWorldView();
+		final int[] mapRegions = worldView.getMapRegions();
 
 		for (int region : mapRegions)
 		{
