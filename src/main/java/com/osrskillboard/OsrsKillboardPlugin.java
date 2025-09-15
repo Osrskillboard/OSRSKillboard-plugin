@@ -87,7 +87,7 @@ public class OsrsKillboardPlugin extends Plugin
 				}
 			}
 			if (quantity > 0) {
-				list.add(new ItemStack(item.getId(), item.getQuantity() + quantity, item.getLocation()));
+				list.add(new ItemStack(item.getId(), item.getQuantity() + quantity));
 			} else {
 				list.add(item);
 			}
@@ -180,7 +180,7 @@ public class OsrsKillboardPlugin extends Plugin
 		// Convert container items to array of ItemStack
 		final Collection<ItemStack> items = Arrays.stream(container.getItems())
 				.filter(item -> item.getId() > 0)
-				.map(item -> new ItemStack(item.getId(), item.getQuantity(), client.getLocalPlayer().getLocalLocation()))
+				.map(item -> new ItemStack(item.getId(), item.getQuantity()))
 				.collect(Collectors.toList());
 
 		final OsrsKillboardItem[] chestLoot = buildEntries(stack(items));
