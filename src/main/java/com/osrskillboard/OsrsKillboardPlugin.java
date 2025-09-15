@@ -159,7 +159,7 @@ public class OsrsKillboardPlugin extends Plugin
 
 		switch (widgetLoaded.getGroupId())
 		{
-			case InterfaceID.WILDERNESS_LOOT_CHEST:
+			case net.runelite.api.gameval.InterfaceID.WILDY_LOOT_CHEST:
 				if (chestLooted)
 				{
 					return;
