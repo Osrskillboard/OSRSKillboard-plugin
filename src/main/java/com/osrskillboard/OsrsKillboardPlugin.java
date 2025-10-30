@@ -9,9 +9,11 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
 import net.runelite.api.events.GameStateChanged;
+import net.runelite.api.events.ItemContainerChanged;
 import net.runelite.api.events.WidgetLoaded;
+import net.runelite.api.gameval.InventoryID;
+import net.runelite.api.gameval.ItemID;
 import net.runelite.api.kit.KitType;
-import net.runelite.api.widgets.InterfaceID;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.PlayerLootReceived;
@@ -63,6 +65,24 @@ public class OsrsKillboardPlugin extends Plugin
 	private OsrsKillboardPanel panel;
 	private NavigationButton navButton;
 	private boolean chestLooted;
+	private boolean pvpKeysLooted;
+
+	// PvP loot keys (Wilderness/Deadman) reuse the Deadman loot containers, one per tab
+	private static final List<Integer> PVP_LOOT_KEY_CONTAINERS = List.of(
+			InventoryID.DEADMAN_LOOT_INV0,
+			InventoryID.DEADMAN_LOOT_INV1,
+			InventoryID.DEADMAN_LOOT_INV2,
+			InventoryID.DEADMAN_LOOT_INV3,
+			InventoryID.DEADMAN_LOOT_INV4
+	);
+
+	private static final List<Integer> PVP_LOOT_KEYS = List.of(
+			ItemID.WILDY_LOOT_KEY0,
+			ItemID.WILDY_LOOT_KEY1,
+			ItemID.WILDY_LOOT_KEY2,
+			ItemID.WILDY_LOOT_KEY3,
+			ItemID.WILDY_LOOT_KEY4
+	);
 
 	@Provides
 	OsrsKillboardConfig provideConfig(ConfigManager configManager)
@@ -144,7 +164,7 @@ public class OsrsKillboardPlugin extends Plugin
 	@Subscribe
 	public void onGameStateChanged(final GameStateChanged event)
 	{
-		if (event.getGameState() == GameState.LOADING && !client.getTopLevelWorldView().isInstance())
+	if (event.getGameState() == GameState.LOADING && !client.getTopLevelWorldView().isInstance())
 		{
 			chestLooted = false;
 		}
@@ -153,46 +173,79 @@ public class OsrsKillboardPlugin extends Plugin
 	@Subscribe
 	public void onWidgetLoaded(WidgetLoaded widgetLoaded)
 	{
-		String event;
-		Object metadata = null;
-		final ItemContainer container;
-
-		switch (widgetLoaded.getGroupId())
-		{
-			case net.runelite.api.gameval.InterfaceID.WILDY_LOOT_CHEST:
-				if (chestLooted)
-				{
-					return;
-				}
-				event = "Loot Chest";
-				container = client.getItemContainer(InventoryID.WILDERNESS_LOOT_CHEST);
-				chestLooted = true;
-				break;
-			default:
-				return;
-		}
-
-		if (container == null)
+		if (widgetLoaded.getGroupId() != net.runelite.api.gameval.InterfaceID.WILDY_LOOT_CHEST)
 		{
 			return;
 		}
 
-		// Convert container items to array of ItemStack
-		final Collection<ItemStack> items = Arrays.stream(container.getItems())
-				.filter(item -> item.getId() > 0)
-				.map(item -> new ItemStack(item.getId(), item.getQuantity()))
-				.collect(Collectors.toList());
-
-		final OsrsKillboardItem[] chestLoot = buildEntries(stack(items));
-
-		if (items.isEmpty())
+		// Avoid duplicate logging while keys are present
+		if (pvpKeysLooted)
 		{
-			log.debug("No items to find for Event: {} | Container: {}", event, container);
 			return;
 		}
 
+		// Aggregate loot across all PvP key tabs (Deadman loot containers)
+		final List<ItemStack> aggregated = new ArrayList<>();
+		for (int containerId : PVP_LOOT_KEY_CONTAINERS)
+		{
+			aggregated.addAll(toItemStacks(client.getItemContainer(containerId)));
+		}
+
+		if (aggregated.isEmpty())
+		{
+			return;
+		}
+
+		final OsrsKillboardItem[] chestLoot = buildEntries(stack(aggregated));
 		JsonObject keyJson = buildKeyJson(chestLoot);
 		osrsKillboardClient.submitKeyLoot(keyJson, panel, chestLoot);
+		pvpKeysLooted = true;
+	}
+
+	@Subscribe
+	public void onItemContainerChanged(ItemContainerChanged event)
+	{
+		// If a PvP key tab container changes and we haven't recorded yet, aggregate and submit now
+		if (!pvpKeysLooted && PVP_LOOT_KEY_CONTAINERS.contains(event.getContainerId()))
+		{
+			final List<ItemStack> aggregated = new ArrayList<>();
+			for (int containerId : PVP_LOOT_KEY_CONTAINERS)
+			{
+				aggregated.addAll(toItemStacks(client.getItemContainer(containerId)));
+			}
+			if (!aggregated.isEmpty())
+			{
+				final OsrsKillboardItem[] chestLoot = buildEntries(stack(aggregated));
+				JsonObject keyJson = buildKeyJson(chestLoot);
+				osrsKillboardClient.submitKeyLoot(keyJson, panel, chestLoot);
+				pvpKeysLooted = true;
+				return;
+			}
+		}
+
+		// While the player still has any PvP loot key in inventory, keep the flag set.
+		// Once all keys are gone, allow the next chest open to be recorded again.
+		if (pvpKeysLooted && event.getContainerId() == InventoryID.INV)
+		{
+			final ItemContainer inventory = client.getItemContainer(InventoryID.INV);
+			if (inventory != null)
+			{
+				pvpKeysLooted = PVP_LOOT_KEYS.stream().anyMatch(inventory::contains);
+			}
+		}
+	}
+
+	private static Collection<ItemStack> toItemStacks(ItemContainer container)
+	{
+		if (container == null)
+		{
+			return Collections.emptyList();
+		}
+
+		return Arrays.stream(container.getItems())
+				.filter(item -> item.getId() > -1)
+				.map(item -> new ItemStack(item.getId(), item.getQuantity()))
+				.collect(Collectors.toList());
 	}
 
 	private JsonObject buildKillJson(Player victim, OsrsKillboardItem[] lootItems) {
@@ -210,7 +263,7 @@ public class OsrsKillboardPlugin extends Plugin
 
 		// Pker Info
 		killJson.addProperty("pkerName", pker.getName());
-		killJson.addProperty("pkerAccountType", Varbits.ACCOUNT_TYPE);
+		killJson.addProperty("pkerAccountType", client.getAccountType().toString());
 		killJson.addProperty("pkerCombatLevel", pker.getCombatLevel());
 		killJson.add("pkerItemsEquipped", getEquippedGearForPlayer(pker));
 		killJson.addProperty("pkerIsSkulled", isPlayerSkulled(pker));
@@ -246,7 +299,7 @@ public class OsrsKillboardPlugin extends Plugin
 
 		// Pker Info
 		keyJson.addProperty("pkerName", pker.getName());
-		keyJson.addProperty("pkerAccountType", Varbits.ACCOUNT_TYPE);
+		keyJson.addProperty("pkerAccountType", client.getAccountType().toString());
 
 		// Misc
 		keyJson.add("loot", getLootAsJson(lootItems));

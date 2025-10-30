@@ -38,8 +38,9 @@ public class OsrsKillboardClient
 
         MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
+        String requestBody = killRecord.toString();
         Request requestBuilder = new Request.Builder()
-                .post(RequestBody.create(JSON, killRecord.toString()))
+                .post(RequestBody.create(JSON, requestBody))
                 .url(url)
                 .build();
 
@@ -50,12 +51,11 @@ public class OsrsKillboardClient
             {
                 chatMessageManager.queue(QueuedMessage.builder().type(ChatMessageType.GAMEMESSAGE).value("OSRSKillboard.com - Kill of " + victimName + " failed to log.").build());
                 SwingUtilities.invokeLater(() -> panel.add(victimName, victimCombat, victimLoot, ""));
-                log.warn("unable to submit pk", e);
+                log.warn("PK submit failed: {}", e.getMessage(), e);
             }
 
             @Override
             public void onResponse(Call call, Response response) {
-
                 String killIdentifier = null;
                 try {
                     assert response.body() != null;
@@ -65,7 +65,6 @@ public class OsrsKillboardClient
                 } finally {
                     response.close();
                 }
-
                 chatMessageManager.queue(QueuedMessage.builder().type(ChatMessageType.GAMEMESSAGE).value("OSRSKillboard.com - Kill of " + victimName + " logged.").build());
 
                 String finalKillIdentifier = killIdentifier;
@@ -89,8 +88,9 @@ public class OsrsKillboardClient
 
         MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
+        String requestBody = keyJson.toString();
         Request requestBuilder = new Request.Builder()
-                .post(RequestBody.create(JSON, keyJson.toString()))
+                .post(RequestBody.create(JSON, requestBody))
                 .url(url)
                 .build();
 
@@ -101,12 +101,11 @@ public class OsrsKillboardClient
             {
                 chatMessageManager.queue(QueuedMessage.builder().type(ChatMessageType.GAMEMESSAGE).value("OSRSKillboard.com - PvP Loot Chest opening failed to log.").build());
                 SwingUtilities.invokeLater(() -> panel.add("PvP Loot Chest", -2, keyLoot, ""));
-                log.warn("unable to submit PVP Loot Chest", e);
+                log.warn("PvP Key Loot submit failed: {}", e.getMessage(), e);
             }
 
             @Override
             public void onResponse(Call call, Response response) {
-
                 String killIdentifier = null;
                 try {
                     assert response.body() != null;
@@ -116,7 +115,6 @@ public class OsrsKillboardClient
                 } finally {
                     response.close();
                 }
-
                 chatMessageManager.queue(QueuedMessage.builder().type(ChatMessageType.GAMEMESSAGE).value("OSRSKillboard.com - PvP Loot Chest opening logged.").build());
 
                 String serverKeyId = killIdentifier;
@@ -129,4 +127,5 @@ public class OsrsKillboardClient
 
         return future;
     }
+
 }
